@@ -1,86 +1,132 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        // Create shared lists
+        Scanner input = new Scanner(System.in);
         List<Person> people = new ArrayList<>();
         List<Course> courseCatalog = new ArrayList<>();
+        Admin admin = null;
 
-        // Create Admin, Teachers, Students
-        Admin admin = new Admin("A-001", "Aisha", "aisha@campus.com");
-        Teacher t1 = new Teacher("T-100", "Mr. John", "john@campus.com", "Mathematics", 1200.0);
-        Teacher t2 = new Teacher("T-101", "Ms. Mary", "mary@campus.com", "Physics", 1300.0);
-        Student s1 = new Student("S-200", "Nora", "nora@student.com", 11);
-        Student s2 = new Student("S-201", "Sam", "sam@student.com", 12);
+        System.out.println("=== CAMPUS MANAGEMENT SYSTEM ===");
 
-        // Add to people list
+        // Create Admin
+        System.out.print("Enter Admin ID: ");
+        String adminId = input.nextLine();
+        System.out.print("Enter Admin Name: ");
+        String adminName = input.nextLine();
+        System.out.print("Enter Admin Email: ");
+        String adminEmail = input.nextLine();
+        admin = new Admin(adminId, adminName, adminEmail);
         people.add(admin);
-        people.add(t1);
-        people.add(t2);
-        people.add(s1);
-        people.add(s2);
 
-        // Admin adds courses
-        admin.addCourse(courseCatalog, new Course("MATH101", "Calculus"));
-        admin.addCourse(courseCatalog, new Course("PHYS101", "Mechanics"));
-        admin.addCourse(courseCatalog, new Course("CS101", "Algorithms"));
+        // Add teachers
+        System.out.print("\nHow many teachers to register? ");
+        int numTeachers = input.nextInt();
+        input.nextLine(); // consume newline
+        for (int i = 0; i < numTeachers; i++) {
+            System.out.println("\nEnter Teacher " + (i + 1) + " details:");
+            System.out.print("ID: ");
+            String id = input.nextLine();
+            System.out.print("Name: ");
+            String name = input.nextLine();
+            System.out.print("Email: ");
+            String email = input.nextLine();
+            System.out.print("Subject: ");
+            String subject = input.nextLine();
+            System.out.print("Salary: ");
+            double salary = input.nextDouble();
+            input.nextLine();
+            Teacher teacher = new Teacher(id, name, email, subject, salary);
+            people.add(teacher);
+        }
+
+        // Add students
+        System.out.print("\nHow many students to register? ");
+        int numStudents = input.nextInt();
+        input.nextLine();
+        for (int i = 0; i < numStudents; i++) {
+            System.out.println("\nEnter Student " + (i + 1) + " details:");
+            System.out.print("ID: ");
+            String id = input.nextLine();
+            System.out.print("Name: ");
+            String name = input.nextLine();
+            System.out.print("Email: ");
+            String email = input.nextLine();
+            System.out.print("Grade: ");
+            int grade = input.nextInt();
+            input.nextLine();
+            Student student = new Student(id, name, email, grade);
+            people.add(student);
+        }
+
+        // Add courses
+        System.out.print("\nHow many courses to add? ");
+        int numCourses = input.nextInt();
+        input.nextLine();
+        for (int i = 0; i < numCourses; i++) {
+            System.out.println("\nEnter Course " + (i + 1) + " details:");
+            System.out.print("Course Code: ");
+            String code = input.nextLine();
+            System.out.print("Course Name: ");
+            String name = input.nextLine();
+            Course course = new Course(code, name);
+            admin.addCourse(courseCatalog, course);
+        }
 
         // Assign teachers
-        admin.assignTeacherToCourse(courseCatalog, "MATH101", t1);
-        admin.assignTeacherToCourse(courseCatalog, "PHYS101", t2);
+        System.out.println("\n=== Assign Teachers to Courses ===");
+        for (Course c : courseCatalog) {
+            System.out.print("Assign teacher ID for " + c.getCourseName() + ": ");
+            String tid = input.nextLine();
+            Teacher teacher = findTeacherById(people, tid);
+            if (teacher != null) {
+                admin.assignTeacherToCourse(courseCatalog, c.getCourseCode(), teacher);
+            } else {
+                System.out.println("Teacher not found.");
+            }
+        }
 
         // Students enroll
-        s1.enrollCourse(findCourse(courseCatalog, "MATH101"));
-        s1.enrollCourse(findCourse(courseCatalog, "CS101"));
-        s2.enrollCourse(findCourse(courseCatalog, "PHYS101"));
+        System.out.println("\n=== Student Course Enrollment ===");
+        for (Person p : people) {
+            if (p instanceof Student s) {
+                System.out.println("Student: " + s.getName());
+                System.out.print("How many courses to enroll? ");
+                int n = input.nextInt();
+                input.nextLine();
+                for (int i = 0; i < n; i++) {
+                    System.out.print("Enter course code: ");
+                    String code = input.nextLine();
+                    Course course = findCourse(courseCatalog, code);
+                    if (course != null) s.enrollCourse(course);
+                    else System.out.println("Course not found!");
+                }
+            }
+        }
 
-        // Polymorphism demo
+        // Display everything
         System.out.println("\n=== PEOPLE INFO ===");
         for (Person person : people) {
             person.displayInfo();
             System.out.println();
         }
 
-        // Interface demo
-        System.out.println("=== PAYABLES ===");
-        List<Payable> payables = new ArrayList<>();
-        payables.add(t1);
-        payables.add(t2);
-        payables.add(s1);
-        payables.add(s2);
-
-        for (Payable pay : payables) {
-            System.out.println(pay.getClass().getSimpleName() + " payment: " + pay.calculatePayment());
-        }
-
-        // Show courses
         System.out.println("\n=== COURSE CATALOG ===");
-        for (Course c : courseCatalog) {
-            System.out.println(c);
-        }
+        for (Course c : courseCatalog) System.out.println(c);
 
-        // Admin removes a course
-        admin.removeCourse(courseCatalog, "CS101");
-
-        System.out.println("\nAfter removal:");
-        for (Course c : courseCatalog) {
-            System.out.println(c);
-        }
-
-        // Casting example
-        System.out.println("\n=== Casting Example ===");
-        Person somePerson = s2;
-        System.out.println("somePerson is instance of Student? " + (somePerson instanceof Student));
-        Student casted = (Student) somePerson;
-        System.out.println("Casted student enrolled courses: " + casted.getEnrolledCourses().size());
+        input.close();
     }
 
-    // Helper method
     private static Course findCourse(List<Course> catalog, String code) {
-        for (Course c : catalog) {
+        for (Course c : catalog)
             if (c.getCourseCode().equalsIgnoreCase(code)) return c;
-        }
+        return null;
+    }
+
+    private static Teacher findTeacherById(List<Person> people, String id) {
+        for (Person p : people)
+            if (p instanceof Teacher && p.getId().equalsIgnoreCase(id))
+                return (Teacher) p;
         return null;
     }
 }
