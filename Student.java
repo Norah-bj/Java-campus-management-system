@@ -11,15 +11,21 @@ public class Student extends Person implements Payable {
         this.enrolledCourses = new ArrayList<>();
     }
 
-    public void enrollCourse(Course c) {
-        if (c != null && enrolledCourses.size() < Course.MAX_STUDENTS) {
-            enrolledCourses.add(c);
-            System.out.println(getName() + " enrolled in " + c.getCourseName());
-        }
+    public void enrollCourse(Course c) throws Exception {
+        if (c == null) throw new Exception("Course does not exist!");
+        if (enrolledCourses.size() >= Course.MAX_STUDENTS)
+            throw new Exception("Course is full! (Student has reached max courses)");
+
+        enrolledCourses.add(c);
+        System.out.println(getName() + " enrolled in " + c.getCourseName());
     }
 
     public List<Course> getEnrolledCourses() {
         return enrolledCourses;
+    }
+
+    public int getGradeLevel() {
+        return gradeLevel;
     }
 
     @Override

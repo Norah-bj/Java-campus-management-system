@@ -1,4 +1,8 @@
 import java.util.*;
+import java.util.concurrent.*;
+import java.text.DecimalFormat;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,7 +11,7 @@ public class Main {
         List<Course> courseCatalog = new ArrayList<>();
         Admin admin = null;
 
-        System.out.println("=== CAMPUS MANAGEMENT SYSTEM ===");
+        System.out.println("=== CAMPUS MANAGEMENT SYSTEM (UPGRADED) ===");
 
         // Create Admin
         System.out.print("Enter Admin ID: ");
@@ -69,7 +73,16 @@ public class Main {
             String code = input.nextLine();
             System.out.print("Course Name: ");
             String name = input.nextLine();
-            Course course = new Course(code, name);
+            
+            // 1. ENUM Usage
+            System.out.println("Select Difficulty (1-EASY, 2-MEDIUM, 3-HARD): ");
+            int diffChoice = input.nextInt();
+            input.nextLine();
+            Difficulty diff = Difficulty.EASY;
+            if(diffChoice == 2) diff = Difficulty.MEDIUM;
+            else if(diffChoice == 3) diff = Difficulty.HARD;
+
+            Course course = new Course(code, name, diff);
             admin.addCourse(courseCatalog, course);
         }
 
@@ -98,35 +111,94 @@ public class Main {
                     System.out.print("Enter course code: ");
                     String code = input.nextLine();
                     Course course = findCourse(courseCatalog, code);
-                    if (course != null) s.enrollCourse(course);
-                    else System.out.println("Course not found!");
+                    
+                    // 2. Exception Handling
+                    try {
+                        s.enrollCourse(course);
+                    } catch (Exception e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                 }
             }
         }
 
-        // Display everything
-        System.out.println("\n=== PEOPLE INFO ===");
-        for (Person person : people) {
-            person.displayInfo();
-            System.out.println();
+        // 3. Streams - Sort Students
+        System.out.println("\n=== Sorted Students (Streams) ===");
+        people.stream()
+              .filter(p -> p instanceof Student)
+              .sorted(Comparator.comparing(Person::getName))
+              .forEach(p -> System.out.println(p.getName()));
+
+        // 4. Formatting
+        System.out.println("\n=== Formatting Examples ===");
+        DecimalFormat df = new DecimalFormat("#,###.00");
+        for(Person p : people) {
+            if(p instanceof Payable payable) {
+                System.out.println("Payment for " + p.getName() + ": " + df.format(payable.calculatePayment()));
+            }
+            if(p instanceof Student s) {
+                System.out.printf("Student %-10s | Grade %d%n", s.getName(), s.getGradeLevel()); // printf
+            }
         }
 
-        System.out.println("\n=== COURSE CATALOG ===");
-        for (Course c : courseCatalog) System.out.println(c);
+        // 5. Wildcards
+        System.out.println("\n=== Wildcards Example (Printing all people) ===");
+        printList(people);
+
+        // 6. Multithreading & Executor
+        System.out.println("\n=== Multithreading Payment Processing ===");
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        List<Payable> payables = new ArrayList<>();
+        for(Person p : people) {
+            if(p instanceof Payable) payables.add((Payable)p);
+        }
+        
+        for (Payable p : payables) {
+            executor.submit(() -> {
+                System.out.println(p.getClass().getSimpleName() + 
+                    " processed payment: " + df.format(p.calculatePayment()) + " [Thread: " + Thread.currentThread().getName() + "]");
+            });
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 7. Merging Lists
+        System.out.println("\n=== Merging Lists (Teachers + Students) ===");
+        List<Person> teachers = people.stream().filter(p -> p instanceof Teacher).collect(Collectors.toList());
+        List<Person> students = people.stream().filter(p -> p instanceof Student).collect(Collectors.toList());
+        
+        List<Person> merged = Stream.concat(teachers.stream(), students.stream())
+                                    .collect(Collectors.toList());
+        merged.forEach(p -> System.out.println(p.getName() + " (" + p.getClass().getSimpleName() + ")"));
 
         input.close();
     }
 
+    // Updated findCourse using Streams
     private static Course findCourse(List<Course> catalog, String code) {
-        for (Course c : catalog)
-            if (c.getCourseCode().equalsIgnoreCase(code)) return c;
-        return null;
+        return catalog.stream()
+                .filter(course -> course.getCourseCode().equalsIgnoreCase(code))
+                .findFirst()
+                .orElse(null);
     }
 
+    // Updated findTeacherById using Streams
     private static Teacher findTeacherById(List<Person> people, String id) {
-        for (Person p : people)
-            if (p instanceof Teacher && p.getId().equalsIgnoreCase(id))
-                return (Teacher) p;
-        return null;
+        return people.stream()
+                .filter(p -> p instanceof Teacher && p.getId().equalsIgnoreCase(id))
+                .map(p -> (Teacher) p)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // Wildcard method
+    public static void printList(List<? extends Person> list) {
+        for (Person p : list) {
+            System.out.println(p.getName());
+        }
     }
 }

@@ -3,11 +3,13 @@ public class Course {
 
     private String courseCode;
     private String courseName;
+    private Difficulty difficulty;
     private Teacher teacherAssigned;
 
-    public Course(String courseCode,String courseName){
-        this.courseCode=courseCode;
-        this.courseName=courseName;
+    public Course(String courseCode, String courseName, Difficulty difficulty) {
+        this.courseCode = courseCode;
+        this.courseName = courseName;
+        this.difficulty = difficulty;
     }
 
     public String getCourseCode() {
@@ -26,17 +28,25 @@ public class Course {
         this.courseName = courseName;
     }
 
-    public Teacher getTeacherAssigned(){
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public Teacher getTeacherAssigned() {
         return teacherAssigned;
     }
 
-    public void setTeacherAssigned(Teacher teacherAssigned){
+    public void setTeacherAssigned(Teacher teacherAssigned) {
         this.teacherAssigned = teacherAssigned;
     }
 
     @Override
     public String toString() {
         String t = (teacherAssigned == null) ? "Unassigned" : teacherAssigned.getName();
-        return courseCode + " - " + courseName + " | Teacher: " + t;
+        return String.format("%-10s | %-20s | %-6s | Teacher: %s", courseCode, courseName, difficulty, t);
     }
 }
