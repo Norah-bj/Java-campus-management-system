@@ -1,0 +1,5 @@
+S101,Alice,alice@example.com,10
+S102,Bob,bob@example.com,11
+S103,Charlie,charlie@example.com,12
+S104,Diana,diana@example.com,10
+studentS105,Eve,eve@example.com,11
