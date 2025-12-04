@@ -16,34 +16,50 @@ public class Main {
         System.out.println("=== CAMPUS MANAGEMENT SYSTEM (UPGRADED + FILE I/O) ===");
 
         // Create Admin
-        System.out.print("Enter Admin ID: ");
-        String adminId = input.nextLine();
-        System.out.print("Enter Admin Name: ");
-        String adminName = input.nextLine();
-        System.out.print("Enter Admin Email: ");
-        String adminEmail = input.nextLine();
-        admin = new Admin(adminId, adminName, adminEmail);
-        people.add(admin);
+        while (admin == null) {
+            try {
+                System.out.print("Enter Admin ID: ");
+                String adminId = input.nextLine();
+                System.out.print("Enter Admin Name: ");
+                String adminName = input.nextLine();
+                System.out.print("Enter Admin Email: ");
+                String adminEmail = input.nextLine();
+                admin = new Admin(adminId, adminName, adminEmail);
+                people.add(admin);
+            } catch (IllegalArgumentException e) {
+                System.out.println("ERROR: " + e.getMessage());
+                System.out.println("Please try again.\n");
+            }
+        }
 
         // Add teachers
         System.out.print("\nHow many teachers to register? ");
         int numTeachers = input.nextInt();
         input.nextLine(); // consume newline
         for (int i = 0; i < numTeachers; i++) {
-            System.out.println("\nEnter Teacher " + (i + 1) + " details:");
-            System.out.print("ID: ");
-            String id = input.nextLine();
-            System.out.print("Name: ");
-            String name = input.nextLine();
-            System.out.print("Email: ");
-            String email = input.nextLine();
-            System.out.print("Subject: ");
-            String subject = input.nextLine();
-            System.out.print("Salary: ");
-            double salary = input.nextDouble();
-            input.nextLine();
-            Teacher teacher = new Teacher(id, name, email, subject, salary);
-            people.add(teacher);
+            boolean success = false;
+            while (!success) {
+                try {
+                    System.out.println("\nEnter Teacher " + (i + 1) + " details:");
+                    System.out.print("ID: ");
+                    String id = input.nextLine();
+                    System.out.print("Name: ");
+                    String name = input.nextLine();
+                    System.out.print("Email: ");
+                    String email = input.nextLine();
+                    System.out.print("Subject: ");
+                    String subject = input.nextLine();
+                    System.out.print("Salary: ");
+                    double salary = input.nextDouble();
+                    input.nextLine();
+                    Teacher teacher = new Teacher(id, name, email, subject, salary);
+                    people.add(teacher);
+                    success = true;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                    System.out.println("Please try again.\n");
+                }
+            }
         }
 
         // Add students (FROM FILE or MANUAL)
@@ -62,18 +78,27 @@ public class Main {
             int numStudents = input.nextInt();
             input.nextLine();
             for (int i = 0; i < numStudents; i++) {
-                System.out.println("\nEnter Student " + (i + 1) + " details:");
-                System.out.print("ID: ");
-                String id = input.nextLine();
-                System.out.print("Name: ");
-                String name = input.nextLine();
-                System.out.print("Email: ");
-                String email = input.nextLine();
-                System.out.print("Grade: ");
-                int grade = input.nextInt();
-                input.nextLine();
-                Student student = new Student(id, name, email, grade);
-                people.add(student);
+                boolean success = false;
+                while (!success) {
+                    try {
+                        System.out.println("\nEnter Student " + (i + 1) + " details:");
+                        System.out.print("ID: ");
+                        String id = input.nextLine();
+                        System.out.print("Name: ");
+                        String name = input.nextLine();
+                        System.out.print("Email: ");
+                        String email = input.nextLine();
+                        System.out.print("Grade: ");
+                        int grade = input.nextInt();
+                        input.nextLine();
+                        Student student = new Student(id, name, email, grade);
+                        people.add(student);
+                        success = true;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                        System.out.println("Please try again.\n");
+                    }
+                }
             }
         }
 
@@ -82,24 +107,33 @@ public class Main {
         int numCourses = input.nextInt();
         input.nextLine();
         for (int i = 0; i < numCourses; i++) {
-            System.out.println("\nEnter Course " + (i + 1) + " details:");
-            System.out.print("Course Code: ");
-            String code = input.nextLine();
-            System.out.print("Course Name: ");
-            String name = input.nextLine();
+            boolean success = false;
+            while (!success) {
+                try {
+                    System.out.println("\nEnter Course " + (i + 1) + " details:");
+                    System.out.print("Course Code: ");
+                    String code = input.nextLine();
+                    System.out.print("Course Name: ");
+                    String name = input.nextLine();
 
-            // 1. ENUM Usage
-            System.out.println("Select Difficulty (1-EASY, 2-MEDIUM, 3-HARD): ");
-            int diffChoice = input.nextInt();
-            input.nextLine();
-            Difficulty diff = Difficulty.EASY;
-            if (diffChoice == 2)
-                diff = Difficulty.MEDIUM;
-            else if (diffChoice == 3)
-                diff = Difficulty.HARD;
+                    // 1. ENUM Usage
+                    System.out.println("Select Difficulty (1-EASY, 2-MEDIUM, 3-HARD): ");
+                    int diffChoice = input.nextInt();
+                    input.nextLine();
+                    Difficulty diff = Difficulty.EASY;
+                    if (diffChoice == 2)
+                        diff = Difficulty.MEDIUM;
+                    else if (diffChoice == 3)
+                        diff = Difficulty.HARD;
 
-            Course course = new Course(code, name, diff);
-            admin.addCourse(courseCatalog, course);
+                    Course course = new Course(code, name, diff);
+                    admin.addCourse(courseCatalog, course);
+                    success = true;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                    System.out.println("Please try again.\n");
+                }
+            }
         }
 
         // Assign teachers
@@ -233,11 +267,19 @@ public class Main {
             students = lines.map(line -> {
                 String[] parts = line.split(",");
                 if (parts.length == 4) {
-                    String id = parts[0].trim();
-                    String name = parts[1].trim();
-                    String email = parts[2].trim();
-                    int grade = Integer.parseInt(parts[3].trim());
-                    return new Student(id, name, email, grade);
+                    try {
+                        String id = parts[0].trim();
+                        String name = parts[1].trim();
+                        String email = parts[2].trim();
+                        int grade = Integer.parseInt(parts[3].trim());
+
+                        // Validation happens in Student constructor
+                        return new Student(id, name, email, grade);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Skipping invalid student record: " + line);
+                        System.out.println("  Reason: " + e.getMessage());
+                        return null;
+                    }
                 }
                 return null;
             })

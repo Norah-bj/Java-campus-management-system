@@ -7,12 +7,20 @@ public class Student extends Person implements Payable {
 
     public Student(String id, String name, String email, int gradeLevel) {
         super(id, name, email);
+
+        // Validate student ID format
+        if (!ValidationUtils.isValidStudentId(id)) {
+            throw new IllegalArgumentException("Invalid student ID format: '" + id
+                    + "'. Student ID must start with 'S' followed by at least 3 digits (e.g., S101).");
+        }
+
         this.gradeLevel = gradeLevel;
         this.enrolledCourses = new ArrayList<>();
     }
 
     public void enrollCourse(Course c) throws Exception {
-        if (c == null) throw new Exception("Course does not exist!");
+        if (c == null)
+            throw new Exception("Course does not exist!");
         if (enrolledCourses.size() >= Course.MAX_STUDENTS)
             throw new Exception("Course is full! (Student has reached max courses)");
 

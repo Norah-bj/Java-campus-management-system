@@ -7,6 +7,12 @@ public class Course {
     private Teacher teacherAssigned;
 
     public Course(String courseCode, String courseName, Difficulty difficulty) {
+        // Validate course code format
+        if (!ValidationUtils.isValidCourseCode(courseCode)) {
+            throw new IllegalArgumentException("Invalid course code format: '" + courseCode
+                    + "'. Course code must be 2-4 uppercase letters followed by 3 digits (e.g., CS101, MATH201).");
+        }
+
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.difficulty = difficulty;
